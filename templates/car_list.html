@@ -1,0 +1,19 @@
+<h1>Машины</h1>
+{% for i in car %}
+
+<h2>Название Машины - {{ i.title }}</h2>
+<p>ФИО покупателя - {{ i.person }}</p>
+
+<!-- Обращаемся через i - которая пренадлежит к модели Car, тут идет обращение к модели 
+ statenumbercar и вытаскиваем поле number_car , оно автоматически подгонит номер по One TO One-->
+<h5>Номер машины - {{ i.statenumbercar.number_car }}</h5>
+
+<h3>Категории</h3>
+<p>
+    {% for cat in i.categories.all %}
+        {{ cat.name }},
+    {% endfor %}
+</p>
+
+
+{% endfor %}
