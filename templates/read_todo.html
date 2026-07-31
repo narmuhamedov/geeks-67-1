@@ -1,0 +1,11 @@
+<h1>Список задач</h1>
+<a href="/create_todo/">Добавить задачу</a>
+{% for i in todo_list %}
+<h2>Задача - {{ i.title }}</h2>
+<p>Статус - {{ i.task }}</p>
+<p>Проблема - {{ i.problem }}</p>
+<a href="{{ i.screenshots.url }}" download>Скачать файл</a>
+<p>Дата создания - {{ i.created_at }}</p>
+<a href="/todo_list/{{ i.id }}/delete/">Удалить</a>
+<a href="/todo_list/{{ i.id }}/update/">Изменить</a>
+{% endfor %}
