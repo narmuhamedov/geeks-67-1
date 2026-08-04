@@ -1,0 +1,9 @@
+<h1>Личный кабинет</h1>
+<h2>Привет, {{ user.username }}</h2>
+<img src="{{ user.photo.url }}" alt="" width="200" height="200">
+<p>Имя: {{ user.first_name }}</p>
+
+<form action="/logout/" method="POST">
+    {% csrf_token %}
+    <button type="submit">Выйти из личного кабинета</button>
+</form>

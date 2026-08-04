@@ -1,5 +1,5 @@
 from django.db import models
-
+from blog.models import Blog
 class TodoModel(models.Model):
     title = models.CharField(max_length=20)
     TASKS = (
