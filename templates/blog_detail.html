@@ -1,6 +1,471 @@
-<h1>Название блога - {{ blog_id.title }}</h1>
-<img src="{{ blog_id.image.url }}" alt="" width="300" height="250">
-<p>Описание - {{ blog_id.description }}</p>
-<p>Автор - {{ blog_id.person_name }}</p>
-<a href="{{ blog_id.url_blog }}">Ссылка на блог</a>
-<p>Дата - {{ blog_id.created_at }}</p>
+{% include 'header.html' %}
+
+<style>
+    /* Стили для детальной страницы блога */
+    .blog-detail-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        min-height: 500px;
+    }
+
+    .breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: #95a5a6;
+        margin-bottom: 30px;
+        padding: 10px 0;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .breadcrumbs a {
+        color: #3498db;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .breadcrumbs a:hover {
+        color: #2980b9;
+    }
+
+    .breadcrumbs .separator {
+        color: #bdc3c7;
+    }
+
+    .breadcrumbs .current {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .blog-detail-card {
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f0f0f0;
+    }
+
+    .blog-detail-image {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+        background: #f8f9fa;
+        border-bottom: 3px solid #3498db;
+    }
+
+    .blog-detail-content {
+        padding: 40px 45px;
+    }
+
+    .blog-detail-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: #2c3e50;
+        margin: 0 0 20px 0;
+        line-height: 1.3;
+        position: relative;
+        padding-bottom: 20px;
+    }
+
+    .blog-detail-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #3498db, #e74c3c);
+        border-radius: 2px;
+    }
+
+    .blog-detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px 40px;
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-radius: 12px;
+        margin: 25px 0 30px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #2c3e50;
+    }
+
+    .meta-item .icon {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .meta-item .label {
+        font-size: 12px;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+    }
+
+    .meta-item .value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        display: block;
+    }
+
+    .meta-item .value a {
+        color: #3498db;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .meta-item .value a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+
+    .blog-detail-description {
+        font-size: 17px;
+        line-height: 1.9;
+        color: #444;
+        margin: 25px 0 30px;
+        padding: 25px 30px;
+        background: #fafafa;
+        border-radius: 12px;
+        border-left: 4px solid #3498db;
+    }
+
+    .blog-detail-description strong {
+        color: #2c3e50;
+    }
+
+    .blog-detail-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 35px;
+        padding-top: 30px;
+        border-top: 2px solid #ecf0f1;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #3498db;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid #3498db;
+    }
+
+    .btn-primary:hover {
+        background: transparent;
+        color: #3498db;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn-primary .arrow {
+        transition: transform 0.3s;
+    }
+
+    .btn-primary:hover .arrow {
+        transform: translateX(5px);
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #2c3e50;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid #2c3e50;
+    }
+
+    .btn-secondary:hover {
+        background: transparent;
+        color: #2c3e50;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(44, 62, 80, 0.15);
+    }
+
+    .social-share {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+    }
+
+    .social-share span {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    .social-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .social-btn.facebook {
+        background: #3b5998;
+        color: white;
+    }
+
+    .social-btn.twitter {
+        background: #1da1f2;
+        color: white;
+    }
+
+    .social-btn.telegram {
+        background: #0088cc;
+        color: white;
+    }
+
+    .social-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Стили для тегов/категорий */
+    .blog-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .blog-tag {
+        background: #ecf0f1;
+        color: #2c3e50;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .blog-tag:hover {
+        background: #3498db;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .blog-detail-page {
+            padding: 20px 15px;
+        }
+
+        .blog-detail-image {
+            height: 280px;
+        }
+
+        .blog-detail-content {
+            padding: 25px 20px;
+        }
+
+        .blog-detail-title {
+            font-size: 26px;
+        }
+
+        .blog-detail-meta {
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px 20px;
+        }
+
+        .blog-detail-description {
+            font-size: 15px;
+            padding: 20px;
+        }
+
+        .blog-detail-actions {
+            flex-direction: column;
+        }
+
+        .social-share {
+            margin-left: 0;
+            justify-content: center;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .blog-detail-image {
+            height: 200px;
+        }
+
+        .blog-detail-title {
+            font-size: 22px;
+        }
+
+        .meta-item .value {
+            font-size: 14px;
+        }
+
+        .blog-detail-description {
+            font-size: 14px;
+            padding: 15px;
+        }
+    }
+
+    /* Анимация появления */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .blog-detail-card {
+        animation: fadeInUp 0.6s ease;
+    }
+</style>
+
+<h1>Кол-во просмотров - {{ blog_id.views }}</h1>
+<div class="blog-detail-page">
+    <!-- Хлебные крошки -->
+    <nav class="breadcrumbs">
+        <a href="/">🏠 Главная</a>
+        <span class="separator">›</span>
+        <a href="/blog_list/">Блог</a>
+        <span class="separator">›</span>
+        <span class="current">{{ blog_id.title|truncatechars:30 }}</span>
+    </nav>
+
+    <!-- Основная карточка -->
+    <article class="blog-detail-card">
+        <!-- Изображение -->
+        {% if blog_id.image %}
+        <img src="{{ blog_id.image.url }}" alt="{{ blog_id.title }}" class="blog-detail-image">
+        {% else %}
+        <img src="https://via.placeholder.com/900x450/3498db/ffffff?text=IT+Blog" alt="Без изображения" class="blog-detail-image">
+        {% endif %}
+
+        <!-- Контент -->
+        <div class="blog-detail-content">
+            <!-- Заголовок -->
+            <h1 class="blog-detail-title">{{ blog_id.title }}</h1>
+
+            <!-- Мета-информация -->
+            <div class="blog-detail-meta">
+                <div class="meta-item">
+                    <span class="icon">✍️</span>
+                    <div>
+                        <span class="label">Автор</span>
+                        <span class="value">{{ blog_id.person_name|default:"Неизвестный автор" }}</span>
+                    </div>
+                </div>
+
+                <div class="meta-item">
+                    <span class="icon">📅</span>
+                    <div>
+                        <span class="label">Дата публикации</span>
+                        <span class="value">{{ blog_id.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+
+                <div class="meta-item">
+                    <span class="icon">⏰</span>
+                    <div>
+                        <span class="label">Время чтения</span>
+                        <span class="value">{{ blog_id.created_at|time:"H:i" }}</span>
+                    </div>
+                </div>
+
+                {% if blog_id.url_blog %}
+                <div class="meta-item">
+                    <span class="icon">🔗</span>
+                    <div>
+                        <span class="label">Ссылка</span>
+                        <span class="value">
+                            <a href="{{ blog_id.url_blog }}" target="_blank" rel="noopener noreferrer">
+                                Перейти на блог →
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Описание -->
+            <div class="blog-detail-description">
+                {% if blog_id.description %}
+                    {{ blog_id.description|linebreaks }}
+                {% else %}
+                    <em style="color: #95a5a6;">Описание блога отсутствует</em>
+                {% endif %}
+            </div>
+
+            <!-- Теги (пример) -->
+            <div class="blog-tags">
+                <span style="color: #7f8c8d; font-size: 14px; font-weight: 600;">🏷️ Теги:</span>
+                <a href="#" class="blog-tag">IT</a>
+                <a href="#" class="blog-tag">Технологии</a>
+                <a href="#" class="blog-tag">Программирование</a>
+                <a href="#" class="blog-tag">Обзоры</a>
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="blog-detail-actions">
+                <a href="{{ blog_id.url_blog|default:'#' }}" class="btn-primary" {% if blog_id.url_blog %}target="_blank"{% endif %}>
+                    📖 Читать полную статью
+                    <span class="arrow">→</span>
+                </a>
+
+                <a href="/blog_list/" class="btn-secondary">
+                    ← Назад к списку
+                </a>
+
+                <div class="social-share">
+                    <span>Поделиться:</span>
+                    <a href="#" class="social-btn facebook" title="Facebook">📘</a>
+                    <a href="#" class="social-btn twitter" title="Twitter">🐦</a>
+                    <a href="#" class="social-btn telegram" title="Telegram">✈️</a>
+                </div>
+            </div>
+        </div>
+    </article>
+</div>
+
+{% include 'footer.html' %}

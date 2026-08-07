@@ -1,12 +1,379 @@
-<h1>Блог об IT продуктах</h1>
-{% for i in blog_lst %}
-<hr><hr>
+{% include 'header.html' %}
 
-<h2>Название блога - {{ i.title }}</h2>
-<img src="{{ i.image.url }}" alt="" width="300" height="250">
-<p>Дата - {{ i.created_at }}</p>
-<a href="/blog_list/{{ i.id }}/">Подробнее</a>
+<style>
+    /* Основные стили для страницы блога */
+    .blog-page {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        min-height: 500px;
+    }
 
-<hr><hr>
+    .blog-header {
+        text-align: center;
+        margin-bottom: 50px;
+        position: relative;
+    }
 
-{% endfor %}
+    .blog-header h1 {
+        font-size: 42px;
+        color: #2c3e50;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin: 0;
+    }
+
+    .blog-header h1 span {
+        color: #3498db;
+        position: relative;
+    }
+
+    .blog-header h1 span::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #3498db, #e74c3c);
+        border-radius: 2px;
+    }
+
+    .blog-subtitle {
+        color: #7f8c8d;
+        font-size: 18px;
+        margin-top: 10px;
+    }
+
+    .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .blog-card {
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .blog-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .blog-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        background: #f8f9fa;
+        height: 220px;
+    }
+
+    .blog-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .blog-card:hover .blog-image-wrapper img {
+        transform: scale(1.05);
+    }
+
+    .blog-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #e74c3c;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .blog-content {
+        padding: 25px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .blog-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0 0 12px 0;
+        line-height: 1.4;
+    }
+
+    .blog-title a {
+        color: #2c3e50;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .blog-title a:hover {
+        color: #3498db;
+    }
+
+    .blog-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #95a5a6;
+        font-size: 14px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .blog-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .blog-meta-item .icon {
+        font-size: 16px;
+    }
+
+    .blog-excerpt {
+        color: #555;
+        line-height: 1.7;
+        margin: 0 0 20px 0;
+        flex: 1;
+        font-size: 15px;
+    }
+
+    .blog-footer-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #3498db;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid #3498db;
+    }
+
+    .btn-detail:hover {
+        background: transparent;
+        color: #3498db;
+        transform: scale(1.05);
+    }
+
+    .btn-detail .arrow {
+        transition: transform 0.3s;
+    }
+
+    .btn-detail:hover .arrow {
+        transform: translateX(5px);
+    }
+
+    .blog-stats {
+        display: flex;
+        gap: 15px;
+        color: #95a5a6;
+        font-size: 13px;
+    }
+
+    .blog-stats span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: #f8f9fa;
+        border-radius: 16px;
+        grid-column: 1 / -1;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        font-size: 24px;
+        margin: 0 0 10px;
+    }
+
+    .empty-state p {
+        color: #95a5a6;
+        font-size: 16px;
+        margin: 0;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .blog-page {
+            padding: 20px 15px;
+        }
+
+        .blog-header h1 {
+            font-size: 30px;
+        }
+
+        .blog-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .blog-image-wrapper {
+            height: 180px;
+        }
+
+        .blog-content {
+            padding: 20px;
+        }
+
+        .blog-title {
+            font-size: 18px;
+        }
+
+        .blog-footer-card {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .btn-detail {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .blog-header h1 {
+            font-size: 24px;
+        }
+
+        .blog-image-wrapper {
+            height: 150px;
+        }
+
+        .blog-meta {
+            font-size: 12px;
+        }
+
+        .blog-excerpt {
+            font-size: 14px;
+        }
+    }
+</style>
+
+
+<center>
+<form action="/search/" method="GET">
+    <input type="search" name="s" placeholder="укажите название блога">
+    <button type="submit">Поиск</button>
+</form>
+</center>
+
+<div class="blog-page">
+    <div class="blog-header">
+        <h1>📝 Блог об <span>IT продуктах</span></h1>
+        <p class="blog-subtitle">Актуальные обзоры и новости из мира технологий</p>
+    </div>
+    
+    <div class="blog-grid">
+        
+        {% for i in blog_lst %}
+        <article class="blog-card">
+            <div class="blog-image-wrapper">
+                {% if i.image %}
+                <img src="{{ i.image.url }}" alt="{{ i.title }}">
+                {% else %}
+                <img src="https://via.placeholder.com/400x220/3498db/ffffff?text=IT+Blog" alt="Без изображения">
+                {% endif %}
+                <span class="blog-badge">Новое</span>
+            </div>
+
+            <div class="blog-content">
+                <h2 class="blog-title">
+                    <a href="/blog_list/{{ i.id }}/">{{ i.title }}</a>
+                </h2>
+
+                <div class="blog-meta">
+                    <span class="blog-meta-item">
+                        <span class="icon">📅</span>
+                        {{ i.created_at|date:"d.m.Y" }}
+                    </span>
+                    <span class="blog-meta-item">
+                        <span class="icon">👤</span>
+                        Admin
+                    </span>
+                </div>
+
+                <p class="blog-excerpt">
+                    {{ i.content|truncatewords:20|striptags|default:"Описание блога скоро появится..." }}
+                </p>
+
+                <div class="blog-footer-card">
+                    <a href="/blog_list/{{ i.id }}/" class="btn-detail">
+                        Читать далее
+                        <span class="arrow">→</span>
+                    </a>
+                    <div class="blog-stats">
+                        <span>❤️ 0</span>
+                        <span>💬 0</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <h3>Блогов пока нет</h3>
+            <p>Скоро здесь появятся первые статьи</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<div class="pagination">
+        <span class="step-links">
+            {% if blog_lst.has_previous %}
+                <a href="?page=1">&laquo; Первая</a>
+                <a href="?page={{ blog_lst.previous_page_number }}">Предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ blog_lst.number }} из {{ blog_lst.paginator.num_pages }}.
+            </span>
+
+            {% if blog_lst.has_next %}
+                <a href="?page={{ blog_lst.next_page_number }}">Следующая</a>
+                <a href="?page={{ blog_lst.paginator.num_pages }}">Последняя &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+
+{% include 'footer.html' %}
