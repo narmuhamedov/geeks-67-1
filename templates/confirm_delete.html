@@ -1,0 +1,7 @@
+<h1>Вы действительно хотите удалить? - {{ todo_id.title}}</h1>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Да</button>
+</form>
+
+<a href="/todo_list/">Назад</a>

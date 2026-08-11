@@ -20,12 +20,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from products.views import cars_list_view
+from products.views import CarListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blog.urls')),
-    path('car_list/', cars_list_view),
+    path('car_list/', CarListView.as_view()),
     path('', include('todo.urls')),
     path('', include('users.urls'))
 ]
