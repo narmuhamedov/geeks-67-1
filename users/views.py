@@ -73,3 +73,23 @@ def profile_view(request):
     user = models.CustomUser.objects.get(id=request.user.id)
 
     return render(request, 'profile.html', {'user': user})
+
+
+
+
+# from django.contrib.auth.mixins import LoginRequiredMixin
+# from django.views.generic import TemplateView
+
+# class ProfileView(LoginRequiredMixin, TemplateView):
+#     template_name = 'profile.html'
+#     login_url = '/login/'  # Перенаправление, если пользователь не авторизован
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         # В Django request.user уже содержит объект текущего пользователя,
+#         # но если вам обязательно нужно перевыбрать его из кастомной модели:
+#         # context['user'] = models.CustomUser.objects.get(id=self.request.user.id)
+        
+#         # Оптимальный вариант (использует уже вшитого в request пользователя):
+#         context['user'] = self.request.user
+#         return context
